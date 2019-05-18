@@ -1,1 +1,1 @@
-# python-duckduckgo-images
+# python-ecosia-images
