@@ -1,6 +1,5 @@
 from selenium import webdriver
 import time
-import requests
 
 class searcher:
     def __init__(self):
