@@ -10,6 +10,9 @@ class crawler:
         options.add_argument('--headless')
         self.driver = webdriver.Chrome(chrome_options=options)
 
+    def stop(self):
+        self.driver.stop()
+
     def search(self, keyword):
         """
             Open a headless browser directed to an ecosia search of the given keyword
@@ -50,31 +53,52 @@ class crawler:
         return self.links - old_links
 
     def download_one(self, url: str, folder='downloads'):
-        filename = path.join(folder, self.keyword, url[url.rfind('/') + 1:])
+        self.directory = folder
+        filename = path.join(folder, self.keyword, trim_url(url))
         response = requests.get(url, stream=True)
         if response.status_code == 200:
             with open(filename, 'wb') as f:
                 f.write(response.content)
 
     def download_many(self, urls, folder='downloads'):
-        create_directories()
+        self.directory = folder
+        create_directories(folder, self.keyword)
         directory_path = path.join(folder, self.keyword)
         for url in urls:
+            filename = path.join(folder, self.keyword, trim_url(url))
             response = requests.get(url, stream=True)
             if response.status_code == 200:
                 with open(filename, 'wb') as f:
                     f.write(response.content)
 
-    def create_directories(self, folder: str, sub_folder: str):
-        try:
-            if not path.exists(folder):
-                makedirs(folder)
-                time.sleep(0.2)
-                if not path.exists(path.join(folder, sub_folder)):
-                    makedirs(sub_directory)
-            else:
-                sub_directory = path.join(folder, sub_folder)
-                if not path.exists(sub_directory):
-                    makedirs(sub_directory)
-        except Exception as e:
-            print(e)
+    def download_all(self, folder='downloads'):
+        self.directory = folder
+        create_directories(folder, self.keyword)
+        directory_path = path.join(folder, self.keyword)
+        for url in self.links:
+            if not self.is_downloaded(url):
+                filename = path.join(folder, self.keyword, trim_url(url))
+                response = requests.get(url, stream=True)
+                if response.status_code == 200:
+                    with open(filename, 'wb') as f:
+                        f.write(response.content)
+
+    def is_downloaded(self, url: str) -> bool:
+        return path.exists(path.join(self.directory, self.keyword, trim_url(url)))
+
+def create_directories(folder: str, sub_folder: str):
+    try:
+        if not path.exists(folder):
+            makedirs(folder)
+            time.sleep(0.2)
+            if not path.exists(path.join(folder, sub_folder)):
+                makedirs(sub_directory)
+        else:
+            sub_directory = path.join(folder, sub_folder)
+            if not path.exists(sub_directory):
+                makedirs(sub_directory)
+    except Exception as e:
+        print(e)
+
+def trim_url(url: str):
+    return url[url.rfind('/') + 1:]

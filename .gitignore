@@ -7,3 +7,5 @@ chromedriver
 __pycache__*
 
 dist/
+
+downloads/
