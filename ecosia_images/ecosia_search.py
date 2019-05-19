@@ -23,7 +23,7 @@ class crawler:
         self.driver.get("https://www.ecosia.org/images?q=<%s>" % keyword)
         self.__update()
 
-    def next(self):
+    def gather_more(self):
         """
             Scrolls the browser to the bottom so ecosia loads more pictures
             Adds the new results to the links set
@@ -39,54 +39,73 @@ class crawler:
         """
         try:
             elements = self.driver.find_elements_by_class_name('image-result')
-            for element in elements:
-                self.links.add(element.get_property("href"))
-        except:
-            pass
+            self.links |= set(map(lambda element: element.get_property("href"), elements))
+        except Exception as e:
+            print(e)
 
     def next_links(self):
         """
             Returns the new results after scrolling to the bottom
         """
         old_links = self.links.copy()
-        self.next()
+        self.gather_more()
         return self.links - old_links
 
-    def download_one(self, url: str, folder='downloads'):
-        self.directory = folder
-        filename = path.join(folder, self.keyword, trim_url(url))
+    def __download(self, url: str):
+        """
+            Downloads the image from the given url and saves it in a designated folder
+        """
+        filename = path.join(self.directory, self.keyword, trim_url(url))
         response = requests.get(url, stream=True)
         if response.status_code == 200:
             with open(filename, 'wb') as f:
                 f.write(response.content)
 
-    def download_many(self, urls, folder='downloads'):
+    def __download_one(self, url: str, folder='downloads'):
         self.directory = folder
-        create_directories(folder, self.keyword)
-        directory_path = path.join(folder, self.keyword)
+        create_directories(self.directory, self.keyword)
+        self.__download(url)
+
+    def __download_many(self, urls, folder='downloads'):
+        self.directory = folder
+        create_directories(self.directory, self.keyword)
         for url in urls:
-            filename = path.join(folder, self.keyword, trim_url(url))
-            response = requests.get(url, stream=True)
-            if response.status_code == 200:
-                with open(filename, 'wb') as f:
-                    f.write(response.content)
+            self.__download(url)
 
     def download_all(self, folder='downloads'):
+        """
+            Downloads all the gathered images links
+            Checks every url so as to not download already saved images
+        """
         self.directory = folder
-        create_directories(folder, self.keyword)
-        directory_path = path.join(folder, self.keyword)
-        for url in self.links:
-            if not self.is_downloaded(url):
-                filename = path.join(folder, self.keyword, trim_url(url))
-                response = requests.get(url, stream=True)
-                if response.status_code == 200:
-                    with open(filename, 'wb') as f:
-                        f.write(response.content)
+        self.__download_many(filter(lambda url: not self.is_downloaded(url), self.links), folder=self.directory)
+
+    def download(self, n, folder='downloads', scroll=True):
+        """
+            Downloads a given number of images from the gathered links
+            Checks every url so as to not download already saved images
+            If it has no more usable links it will gather more
+        """
+        self.directory = folder
+        filtered_links = list(filter(lambda url: not self.is_downloaded(url), self.links))
+        if scroll and len(filtered_links) < n:
+            while len(filtered_links) < n:
+                new_links = self.next_links()
+                if len(new_links) == 0:
+                    raise ValueError("No more images found")
+                filtered_links += filter(lambda url: not self.is_downloaded(url), new_links)
+        self.__download_many(filtered_links[:n])
 
     def is_downloaded(self, url: str) -> bool:
+        """
+            Checks to see if the 'would-be' assigned path already exists
+        """
         return path.exists(path.join(self.directory, self.keyword, trim_url(url)))
 
 def create_directories(folder: str, sub_folder: str):
+    """
+        Creates a folder and subfolder in the cwd if necessary
+    """
     try:
         if not path.exists(folder):
             makedirs(folder)
@@ -101,4 +120,7 @@ def create_directories(folder: str, sub_folder: str):
         print(e)
 
 def trim_url(url: str):
+    """
+        Inclusively trims everything before the last / character
+    """
     return url[url.rfind('/') + 1:]

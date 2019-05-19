@@ -4,7 +4,7 @@ from setuptools import setup, find_packages
 from codecs import open
 from os import path
 
-__version__ = '0.3.1'
+__version__ = '0.3.4'
 
 REQUIRED = [
     'selenium', 'requests'
@@ -16,5 +16,6 @@ setup(name='ecosia_images',
     author='Heladio Amaya',
     author_email='heladio.ac@gmail.com',
     url='https://github.com/Heladio-ac/python-ecosia-images',
-    packages=['ecosia_images']
+    packages=['ecosia_images'],
+    install_requires=REQUIRED
 )
