@@ -60,17 +60,20 @@ class crawler:
         if response.status_code == 200:
             with open(filename, 'wb') as f:
                 f.write(response.content)
+            return filename
 
     def __download_one(self, url: str, folder='downloads'):
         self.directory = folder
         create_directories(self.directory, self.keyword)
-        self.__download(url)
+        return self.__download(url)
 
     def __download_many(self, urls, folder='downloads'):
         self.directory = folder
         create_directories(self.directory, self.keyword)
+        paths = []
         for url in urls:
-            self.__download(url)
+            paths.append(self.__download(url))
+        return paths
 
     def download_all(self, folder='downloads'):
         """
@@ -78,7 +81,7 @@ class crawler:
             Checks every url so as to not download already saved images
         """
         self.directory = folder
-        self.__download_many(filter(lambda url: not self.is_downloaded(url), self.links), folder=self.directory)
+        return self.__download_many(filter(lambda url: not self.is_downloaded(url), self.links), folder=self.directory)
 
     def download(self, n, folder='downloads', scroll=True):
         """
@@ -94,7 +97,7 @@ class crawler:
                 if len(new_links) == 0:
                     raise ValueError("No more images found")
                 filtered_links += filter(lambda url: not self.is_downloaded(url), new_links)
-        self.__download_many(filtered_links[:n])
+        return self.__download_many(filtered_links[:n])
 
     def is_downloaded(self, url: str) -> bool:
         """
