@@ -19,7 +19,7 @@ After declaring a crawler and using it to search for a keyword, the resulting li
 >>> searcher = crawler()
 >>> searcher.search('number 9')
 >>> searcher.links
-{ ... }
+{ ... } # urls
 ~~~
 
 #### Gather more links
@@ -36,13 +36,14 @@ If more links are needed the function `gather_more` can be used.
 
 #### Download images
 
-In all the following cases, the script first checks whether the image has been already downloaded so it does not downloads it again.
+In all the following cases, the script first checks whether the image has been already downloaded so it does not downloads it again. Also, the functions will return the file paths to the downloaded images.
 
 The `download` function will download a given number of pictures and save them in a folder whose name coincides with the keyword. This folder will be created inside the one specified when calling the function. In the following example, the images would be saved inside __/path/to/folder/keyword/__.
 
 ~~~ python
 >>> searcher.search('keyword')
 >>> searcher.download(100, '/path/to/folder/')
+[ ... ] # list with file paths
 ~~~
 
 If no folder is specified, the images will be saved inside a new folder named __downloads__ located in the current working directory.
@@ -50,6 +51,7 @@ If no folder is specified, the images will be saved inside a new folder named __
 ~~~ python
 >>> searcher.search('apples')
 >>> searcher.download(100)  # The pictures will be saved at ./downloads/apples/
+[ ... ]
 ~~~
 
 There is also the `download_all` function which will download all the currently available links in the crawler object
@@ -57,6 +59,7 @@ There is also the `download_all` function which will download all the currently 
 ~~~ python
 >>> searcher.search('pidgeons')
 >>> searcher.download_all()
+[ ... ]
 ~~~
 
 #### Stoping the client
