@@ -1,17 +1,22 @@
 from selenium import webdriver
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.wait import WebDriverWait
+from selenium.common.exceptions import TimeoutException
 from os import path, makedirs
 import requests
 import time
 
 class crawler:
-    def __init__(self):
+    def __init__(self, timeout=10):
         options = webdriver.ChromeOptions()
         options.add_argument('--no-sandbox')
         options.add_argument('--headless')
         self.driver = webdriver.Chrome(chrome_options=options)
+        self.timeout = timeout
 
     def stop(self):
-        self.driver.stop()
+        self.driver.close()
 
     def search(self, keyword):
         """
@@ -29,8 +34,18 @@ class crawler:
             Adds the new results to the links set
         """
         self.driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
-        # Wait for the new images to appear, possibly change for a signal to be received when the html changes
-        time.sleep(2)
+        try: 
+            # wait for loading element to appear
+            WebDriverWait(self.driver, self.timeout).until(EC.presence_of_element_located((By.CSS_SELECTOR, ".loading-animation-container")))
+        except TimeoutException:
+            raise ValueError("No more images found")
+
+        try:    
+            # then wait for the element to disappear
+            WebDriverWait(self.driver, self.timeout).until_not(EC.presence_of_element_located((By.CSS_SELECTOR, ".loading-animation-container")))
+        except TimeoutException:
+            raise ValueError("Lost internet connection")
+
         self.__update()
 
     def __update(self):
@@ -41,7 +56,7 @@ class crawler:
             elements = self.driver.find_elements_by_class_name('image-result')
             self.links |= set(map(lambda element: element.get_property("href"), elements))
         except Exception as e:
-            print(e)
+            raise ValueError("Search did not return images")
 
     def next_links(self):
         """
@@ -93,9 +108,7 @@ class crawler:
         filtered_links = list(filter(lambda url: not self.is_downloaded(url), self.links))
         if scroll and len(filtered_links) < n:
             while len(filtered_links) < n:
-                new_links = self.next_links()
-                if len(new_links) == 0:
-                    raise ValueError("No more images found")
+                self.next_links()
                 filtered_links += filter(lambda url: not self.is_downloaded(url), new_links)
         return self.__download_many(filtered_links[:n])
 
@@ -113,7 +126,8 @@ def create_directories(folder: str, sub_folder: str):
         if not path.exists(folder):
             makedirs(folder)
             time.sleep(0.2)
-            if not path.exists(path.join(folder, sub_folder)):
+            sub_directory = path.join(folder, sub_folder)
+            if not path.exists(sub_directory):
                 makedirs(sub_directory)
         else:
             sub_directory = path.join(folder, sub_folder)
