@@ -1,7 +1,7 @@
 from selenium import webdriver
-from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.by import By
-from selenium.webdriver.support.wait import WebDriverWait
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import TimeoutException
 from os import path, makedirs
 import requests
@@ -25,7 +25,7 @@ class crawler:
         """
         self.keyword = keyword
         self.links = set()
-        self.driver.get("https://www.ecosia.org/images?q=<%s>" % keyword)
+        self.driver.get("https://www.ecosia.org/images?q=%s" % keyword)
         self.__update()
 
     def gather_more(self):
@@ -36,13 +36,35 @@ class crawler:
         self.driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
         try: 
             # wait for loading element to appear
-            WebDriverWait(self.driver, self.timeout).until(EC.presence_of_element_located((By.CSS_SELECTOR, ".loading-animation-container")))
+            WebDriverWait(self.driver, self.timeout).until(EC.presence_of_element_located((By.CSS_SELECTOR, "div.loading-animation")))
         except TimeoutException:
             raise ValueError("No more images found")
 
         try:    
             # then wait for the element to disappear
-            WebDriverWait(self.driver, self.timeout).until_not(EC.presence_of_element_located((By.CSS_SELECTOR, ".loading-animation-container")))
+            WebDriverWait(self.driver, self.timeout).until_not(lambda driver: driver.execute_script("\
+                function elementInViewport(el) {\
+                    let top = el.offsetTop;\
+                    let left = el.offsetLeft;\
+                    let width = el.offsetWidth;\
+                    let height = el.offsetHeight;\
+                    \
+                    while(el.offsetParent) {\
+                        el = el.offsetParent;\
+                        top += el.offsetTop;\
+                        left += el.offsetLeft;\
+                    }\
+                    \
+                    return (\
+                        top >= window.pageYOffset &&\
+                        left >= window.pageXOffset &&\
+                        (top + height) <= (window.pageYOffset + window.innerHeight) &&\
+                        (left + width) <= (window.pageXOffset + window.innerWidth)\
+                    );\
+                }\
+                let el = document.getElementsByClassName('loading-animation');\
+                return elementInViewport(el)\
+            "))
         except TimeoutException:
             raise ValueError("Lost internet connection")
 
@@ -71,7 +93,7 @@ class crawler:
             Downloads the image from the given url and saves it in a designated folder
         """
         filename = path.join(self.directory, self.keyword, trim_url(url))
-        response = requests.get(url, stream=True)
+        response = requests.get(url, stream=True, timeout=self.timeout)
         if response.status_code == 200:
             with open(filename, 'wb') as f:
                 f.write(response.content)
@@ -108,7 +130,7 @@ class crawler:
         filtered_links = list(filter(lambda url: not self.is_downloaded(url), self.links))
         if scroll and len(filtered_links) < n:
             while len(filtered_links) < n:
-                self.next_links()
+                new_links = self.next_links()
                 filtered_links += filter(lambda url: not self.is_downloaded(url), new_links)
         return self.__download_many(filtered_links[:n])
 

@@ -11,8 +11,8 @@ searcher.search('testing')
 print('Downloading')
 try:
     searcher.download(60)
-except ValueError:
-    print('Did not found the loading animation')
+except ValueError as e:
+    print(e)
 else:
     print('Success')
 finally:
