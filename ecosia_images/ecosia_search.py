@@ -6,7 +6,6 @@ from selenium.common.exceptions import TimeoutException
 from os import path, makedirs
 import requests
 import time
-import eventlet
 
 class crawler:
     def __init__(self, timeout=10):
