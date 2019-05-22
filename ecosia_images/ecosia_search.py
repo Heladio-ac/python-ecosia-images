@@ -6,6 +6,7 @@ from selenium.common.exceptions import TimeoutException
 from os import path, makedirs
 import requests
 import time
+import eventlet
 
 class crawler:
     def __init__(self, timeout=10):
@@ -14,6 +15,7 @@ class crawler:
         options.add_argument('--headless')
         self.driver = webdriver.Chrome(chrome_options=options)
         self.timeout = timeout
+        self.session = requests.Session()
 
     def stop(self):
         self.driver.close()
@@ -41,7 +43,7 @@ class crawler:
             raise ValueError("No more images found")
 
         try:    
-            # then wait for the element to disappear
+            # then wait for the element to disappear from the viewport
             WebDriverWait(self.driver, self.timeout).until_not(lambda driver: driver.execute_script("\
                 function elementInViewport(el) {\
                     let top = el.offsetTop;\
@@ -93,7 +95,10 @@ class crawler:
             Downloads the image from the given url and saves it in a designated folder
         """
         filename = path.join(self.directory, self.keyword, trim_url(url))
-        response = requests.get(url, stream=True, timeout=self.timeout)
+        try:
+            response = self.session.get(url, stream=True, timeout=self.timeout)
+        except Exception as e:
+            return
         if response.status_code == 200:
             with open(filename, 'wb') as f:
                 f.write(response.content)

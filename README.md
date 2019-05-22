@@ -8,6 +8,10 @@ Python module for searching and downloading images from Ecosia
 pip install ecosia-images
 ~~~
 
+## Setup
+
+The only requisite to work with the library is to have a chromedriver executable in the PATH. See the [following link](https://sites.google.com/a/chromium.org/chromedriver/) for more information.
+
 ## Examples
 
 #### Search images and get the links to the pictures

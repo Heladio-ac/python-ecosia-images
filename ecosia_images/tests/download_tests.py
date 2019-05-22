@@ -22,8 +22,12 @@ def skip_previous_downloads():
     searcher = crawler()
     print('Searching')
     searcher.search('testing')
-    if len(searcher.download(5)) == 5:
-        print('Success')
-    searcher.stop()
+    try:
+        if len(searcher.download(5)) == 5:
+            print('Success')
+    except Exception as e:
+        print(e)
+    finally:
+        searcher.stop()
 
 skip_previous_downloads()
