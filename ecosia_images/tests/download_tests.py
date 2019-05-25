@@ -1,5 +1,5 @@
+from ..ecosia_search import options
 from ecosia_images import crawler
-
 
 """
     Test the downloads functionality
@@ -38,4 +38,27 @@ def skip_previous_downloads():
         searcher.stop()
 
 
+def download_with_options():
+    """
+        Test if the script is able to download images
+        with specified characteristics
+    """
+    print('Instantiating crawler')
+    searcher = crawler()
+    try:
+        print('Searching')
+        for key in options:
+            for option in options[key]:
+                print('Searching: ', key, option)
+                searcher.search('testing', **{key: option})
+                print(searcher.links)
+        print('Success')
+    except Exception as e:
+        print(e.args[0])
+    finally:
+        print('Stopping')
+        searcher.stop()
+
+
 skip_previous_downloads()
+download_with_options()

@@ -8,58 +8,102 @@ import requests
 import time
 
 
-class crawler:
-    size_options = [
-        'small',
-        'medium',
-        'large',
-        'wallpaper'
-    ]
+size_options = [
+    'small',
+    'medium',
+    'large',
+    'wallpaper'
+]
 
-    color_options = [
-        'colorOnly',
-        'monochrome',
-        'red',
-        'orange',
-        'yellow',
-        'green',
-        'teal',
-        'blue',
-        'purple',
-        'pink',
-        'brown',
-        'black',
-        'gray'
-    ]
+color_options = [
+    'colorOnly',
+    'monochrome',
+    'red',
+    'orange',
+    'yellow',
+    'green',
+    'teal',
+    'blue',
+    'purple',
+    'pink',
+    'brown',
+    'black',
+    'gray'
+]
+
+type_options = [
+    'photo',
+    'clipart',
+    'line',
+    'animated'
+]
+
+freshness_options = [
+    'day',
+    'week',
+    'month'
+]
+
+license_options = [
+    'share',
+    'shareCommercially',
+    'modify',
+    'modifyCommercially',
+    'public'
+]
+
+options = {
+    'size': size_options,
+    'color': color_options,
+    'image_type': type_options,
+    'freshness': freshness_options,
+    'license': license_options,
+}
+
+
+class crawler:
 
     def __init__(self, timeout=10):
-        options = webdriver.ChromeOptions()
-        options.add_argument('--no-sandbox')
-        options.add_argument('--headless')
-        self.driver = webdriver.Chrome(chrome_options=options)
+        chrome_options = webdriver.ChromeOptions()
+        chrome_options.add_argument('--no-sandbox')
+        chrome_options.add_argument('--headless')
+        self.driver = webdriver.Chrome(chrome_options=chrome_options)
         self.timeout = timeout
         self.session = requests.Session()
 
     def stop(self):
         self.driver.close()
 
-    def search(self, keyword,
-               size='', color='', type='', freshness='', license=''):
+    def search(self, keyword, **kwargs):
         """
             Open a headless browser and directs it
             to an ecosia search of the given keyword
             with the given options
         """
-        if size and size not in size_options:
-            pass
-        if color:
-            pass
+        options = {
+            'size': '',
+            'color': '',
+            'image_type': '',
+            'freshness': '',
+            'license': '',
+        }
+        options.update(kwargs)
+        validate_options(**options)
+
+        strings = (
+            keyword,
+            options.pop('size'),
+            options.pop('color'),
+            options.pop('image_type'),
+            options.pop('freshness'),
+            options.pop('license')
+        )
+
         self.keyword = keyword
         self.links = set()
         ecosia_url = "https://www.ecosia.org/images"
-        option = "?q=%s&size=%s&color=%s&imageType=%s&freshness=%s&license=%s"
-        self.driver.get(ecosia_url + option
-                        % (keyword, size, color, type, freshness, license))
+        query = "?q=%s&size=%s&color=%s&imageType=%s&freshness=%s&license=%s"
+        self.driver.get(ecosia_url + query % strings)
         self.__update()
 
     def gather_more(self):
@@ -216,3 +260,26 @@ def trim_url(url: str):
 
 def extract_href(element):
     return element.get_property("href")
+
+
+def validate_options(**kwargs) -> bool:
+    size = kwargs.pop('size')
+    if size and size not in size_options:
+        raise ValueError('Invalid size option, try with %s'
+                         % str(size_options))
+    color = kwargs.pop('color')
+    if color and color not in color_options:
+        raise ValueError('Invalid color option, try with %s'
+                         % str(color_options))
+    image_type = kwargs.pop('image_type')
+    if image_type and image_type not in type_options:
+        raise ValueError('Invalid type option, try with %s'
+                         % str(type_options))
+    freshness = kwargs.pop('freshness')
+    if freshness and freshness not in freshness_options:
+        raise ValueError('Invalid freshness option, try with %s'
+                         % str(freshness_options))
+    license = kwargs.pop('license')
+    if license and license not in license_options:
+        raise ValueError('Invalid license option, try with %s'
+                         % str(license_options))
