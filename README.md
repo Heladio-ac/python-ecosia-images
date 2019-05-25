@@ -26,6 +26,30 @@ After declaring a crawler and using it to search for a keyword, the resulting li
 { ... } # urls
 ~~~
 
+#### Search with options
+
+Searches can also include the options that Ecosia provides for refining results. The available keys and values for refining searches are stored in `ecosia_images.download_options`.
+
+~~~ Python
+>>> from ecosia_images import download_options
+>>> download_options
+{
+    'size': ['small', 'medium', 'large', 'wallpaper'],
+    'color': ['colorOnly', 'monochrome', 'red', 'orange', 'yellow', 'green', 'teal', 'blue', 'purple', 'pink', 'brown', 'black', 'gray'],
+    'image_type': ['photo', 'clipart', 'line', 'animated'],
+    'freshness': ['day', 'week', 'month'],
+    'license': ['share', 'shareCommercially', 'modify', 'modifyCommercially', 'public']
+}
+~~~
+
+The selected options can be specified when calling the `search` method of the crawler.
+
+~~~ Python
+>>> searcher.search('trees', color='monochrome', size='wallpaper')
+>>> searcher.links
+{ ... } # links to big pictures of trees in black and white
+~~~
+
 #### Gather more links
 
 If more links are needed the function `gather_more` can be used.
@@ -35,6 +59,7 @@ If more links are needed the function `gather_more` can be used.
 >>> len(searcher.links)
 50  # Give or take
 >>> searcher.gather_more()
+>>> len(searcher.links)
 100 # Give or take
 ~~~
 
@@ -42,7 +67,7 @@ If more links are needed the function `gather_more` can be used.
 
 In all the following cases, the script first checks whether the image has been already downloaded so it does not downloads it again. Also, the functions will return the file paths to the downloaded images.
 
-The `download` function will download a given number of pictures and save them in a folder whose name coincides with the keyword. This folder will be created inside the one specified when calling the function. In the following example, the images would be saved inside __/path/to/folder/keyword/__.
+The `download` function will download a given number of pictures and save them in a folder whose name coincides with the keyword. This folder will be created inside the one specified when calling the function. In the following example, the images would be saved inside __/path/to/folder/downloads/keyword/__.
 
 ~~~ python
 >>> searcher.search('keyword')
@@ -76,4 +101,4 @@ It is necessary to stop the crawler to avoid resource leak.
 
 ## Disclaimer
 
-The images come from the Ecosia search engine. They may have copyrights and the original creators own these. Do not download or use any image that violates its copyright terms.
+The dowloaded images come from the Ecosia search engine and they may have copyrights. Do not download or use any image that violates its copyright terms.
