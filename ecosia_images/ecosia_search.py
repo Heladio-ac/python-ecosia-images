@@ -44,27 +44,24 @@ class crawler:
         try:    
             # then wait for the element to disappear from the viewport
             WebDriverWait(self.driver, self.timeout).until_not(lambda driver: driver.execute_script("\
-                function elementInViewport(el) {\
-                    let top = el.offsetTop;\
-                    let left = el.offsetLeft;\
-                    let width = el.offsetWidth;\
-                    let height = el.offsetHeight;\
-                    \
-                    while(el.offsetParent) {\
-                        el = el.offsetParent;\
-                        top += el.offsetTop;\
-                        left += el.offsetLeft;\
-                    }\
-                    \
-                    return (\
-                        top >= window.pageYOffset &&\
-                        left >= window.pageXOffset &&\
-                        (top + height) <= (window.pageYOffset + window.innerHeight) &&\
-                        (left + width) <= (window.pageXOffset + window.innerWidth)\
-                    );\
-                }\
                 let el = document.getElementsByClassName('loading-animation');\
-                return elementInViewport(el)\
+                let top = el.offsetTop;\
+                let left = el.offsetLeft;\
+                let width = el.offsetWidth;\
+                let height = el.offsetHeight;\
+                \
+                while(el.offsetParent) {\
+                    el = el.offsetParent;\
+                    top += el.offsetTop;\
+                    left += el.offsetLeft;\
+                }\
+                \
+                return (\
+                    top >= window.pageYOffset &&\
+                    left >= window.pageXOffset &&\
+                    (top + height) <= (window.pageYOffset + window.innerHeight) &&\
+                    (left + width) <= (window.pageXOffset + window.innerWidth)\
+                );\
             "))
         except TimeoutException:
             raise ValueError("Lost internet connection")

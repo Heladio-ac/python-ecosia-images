@@ -11,12 +11,16 @@ def skip_previous_downloads():
     """
     print('Instantiating crawler')
     searcher = crawler()
-    print('Searching')
-    searcher.search('testing')
-    print('Downloading')
-    searcher.download(50)
-    print('Stopping')
-    searcher.stop()
+    try:
+        print('Searching')
+        searcher.search('testing')
+        print('Downloading')
+        searcher.download(50)
+    except Exception as e:
+        print(e)
+    finally:
+        print('Stopping')
+        searcher.stop()
     
     print('Instantiating crawler')
     searcher = crawler()

@@ -5,7 +5,7 @@ from codecs import open
 import os
 import io
 
-__version__ = '0.4.0.1'
+__version__ = '0.4.2'
 
 here = os.path.abspath(os.path.dirname(__file__))
 
@@ -16,7 +16,6 @@ try:
         long_description = '\n' + f.read()
 except FileNotFoundError:
     long_description = DESCRIPTION
-
 
 REQUIRED = [
     'selenium', 'requests'
