@@ -1,12 +1,15 @@
 from ecosia_images import crawler
 
+
 """
     Test the downloads functionality
 """
 
+
 def skip_previous_downloads():
     """
-        Test if the script is capable of scrolling past previously downloaded images
+        Test if the script is capable of
+        scrolling past previously downloaded images
         until it finds new images
     """
     print('Instantiating crawler')
@@ -21,7 +24,7 @@ def skip_previous_downloads():
     finally:
         print('Stopping')
         searcher.stop()
-    
+
     print('Instantiating crawler')
     searcher = crawler()
     print('Searching')
@@ -33,5 +36,6 @@ def skip_previous_downloads():
         print(e)
     finally:
         searcher.stop()
+
 
 skip_previous_downloads()
