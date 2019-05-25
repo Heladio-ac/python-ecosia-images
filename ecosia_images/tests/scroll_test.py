@@ -1,5 +1,4 @@
 from ecosia_images import crawler
-from ecosia_images import options
 
 """
     Test the scroll functionality

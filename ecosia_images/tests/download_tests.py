@@ -1,4 +1,4 @@
-from ..ecosia_search import options
+from ecosia_images import download_options
 from ecosia_images import crawler
 
 """

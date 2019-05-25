@@ -52,7 +52,7 @@ license_options = [
     'public'
 ]
 
-options = {
+download_options = {
     'size': size_options,
     'color': color_options,
     'image_type': type_options,
