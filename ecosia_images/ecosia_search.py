@@ -72,7 +72,7 @@ class crawler:
         self.session = requests.Session()
 
     def stop(self):
-        self.driver.close()
+        self.driver.quit()
 
     def search(self, keyword, **kwargs):
         """
