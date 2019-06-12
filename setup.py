@@ -5,7 +5,7 @@ from codecs import open
 import os
 import io
 
-__version__ = '0.4.6'
+__version__ = '0.4.8'
 
 here = os.path.abspath(os.path.dirname(__file__))
 
