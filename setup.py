@@ -5,7 +5,7 @@ from codecs import open
 import os
 import io
 
-__version__ = '0.4.5'
+__version__ = '0.4.6'
 
 here = os.path.abspath(os.path.dirname(__file__))
 
@@ -18,7 +18,9 @@ except FileNotFoundError:
     long_description = DESCRIPTION
 
 REQUIRED = [
-    'selenium', 'requests'
+    'selenium',
+    'requests',
+    'chromedriver-binary==75.0.3770.8.0'
 ]
 
 setup(name='ecosia_images',

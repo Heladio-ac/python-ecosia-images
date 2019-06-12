@@ -6,7 +6,7 @@ from selenium.common.exceptions import TimeoutException
 from os import path, makedirs
 import requests
 import time
-
+import chromedriver_binary
 
 size_options = [
     'small',
