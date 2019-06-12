@@ -3,7 +3,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import TimeoutException
-from os import path, makedirs
+import os
 import requests
 import time
 import chromedriver_binary
@@ -111,8 +111,11 @@ class crawler:
             Scrolls the browser to the bottom so ecosia loads more pictures
             Adds the new results to the links set
         """
-        self.driver.execute_script(
-            "window.scrollTo(0, document.body.scrollHeight);")
+        try:
+            self.driver.execute_script(
+                "window.scrollTo(0, document.body.scrollHeight);")
+        except ConnectionRefusedError:
+            raise TimeoutError("Lost internet connection")
         try:
             # wait for loading element to appear
             css_selector = (By.CSS_SELECTOR, "div.loading-animation")
@@ -138,6 +141,9 @@ class crawler:
             self.links |= set(map(extract_href, elements))
         except Exception as e:
             raise TimeoutError("Search did not return images")
+        finally:
+            if not len(elements):
+                raise TimeoutError("No more images found")
 
     def next_links(self):
         """
@@ -152,14 +158,24 @@ class crawler:
             Downloads the image from the given url
             and saves it in a designated folder
         """
-        filename = path.join(self.directory, self.keyword, trim_url(url))
+        filename = os.path.join(self.directory, self.keyword, trim_url(url))
         try:
             response = self.session.get(url, stream=True, timeout=self.timeout)
+        except requests.exceptions.ConnectionError as e:
+            raise ConnectionError('Unable to connect to Internet')
         except Exception as e:
-            return
+            raise TimeoutError('Connection took to long to download file')
         if response.status_code == 200:
             with open(filename, 'wb') as f:
-                f.write(response.content)
+                try:
+                    f.write(response.content)
+                except requests.exceptions.ConnectionError: 
+                    try:
+                        os.remove(filename)
+                    except FileNotFoundError:
+                        pass
+                    finally:
+                        raise TimeoutError('Connection took long to download file')
             return filename
 
     def __download_one(self, url: str, folder='downloads'):
@@ -172,7 +188,9 @@ class crawler:
         create_directories(self.directory, self.keyword)
         paths = []
         for url in urls:
-            paths.append(self.__download(url))
+            path = self.__download(url)
+            if path:
+                paths.append(path)
         return paths
 
     def download_all(self, folder='downloads'):
@@ -202,8 +220,8 @@ class crawler:
         """
             Checks to see if the 'would-be' assigned path already exists
         """
-        image_path = path.join(self.directory, self.keyword, trim_url(url))
-        return path.exists(image_path)
+        image_path = os.path.join(self.directory, self.keyword, trim_url(url))
+        return os.path.exists(image_path)
 
     def is_not_downloaded(self, url: str) -> bool:
         return not self.is_downloaded(url)
@@ -214,16 +232,16 @@ def create_directories(folder: str, sub_folder: str):
         Creates a folder and subfolder in the cwd if necessary
     """
     try:
-        if not path.exists(folder):
-            makedirs(folder)
+        if not os.path.exists(folder):
+            os.makedirs(folder)
             time.sleep(0.2)
-            sub_directory = path.join(folder, sub_folder)
-            if not path.exists(sub_directory):
-                makedirs(sub_directory)
+            sub_directory = os.path.join(folder, sub_folder)
+            if not os.path.exists(sub_directory):
+                os.makedirs(sub_directory)
         else:
-            sub_directory = path.join(folder, sub_folder)
-            if not path.exists(sub_directory):
-                makedirs(sub_directory)
+            sub_directory = os.path.join(folder, sub_folder)
+            if not os.path.exists(sub_directory):
+                os.makedirs(sub_directory)
     except Exception as e:
         print(e)
 
