@@ -10,16 +10,41 @@ pip install ecosia-images
 
 ## Setup
 
-The only requisite to work with the library is to have a chromedriver executable in the PATH. See the [following link](https://sites.google.com/a/chromium.org/chromedriver/) for more information.
+The only requisite to work with the library is to have a web browser and its driver installed. Currently the package works with either Google Chrome or Firefox.
+
+If using Google Chrome it is required to also have Chromedriver installed and reachable in PATH. See the [following link](https://sites.google.com/a/chromium.org/chromedriver/) for more information. 
+
+As for Firefox, Geckodriver is required to be installed and reachable in PATH.
 
 ## Examples
+
+#### Start a crawler
+
+~~~ python
+>>> from ecosia_images import crawler
+>>> searcher = crawler()
+~~~
+
+The browser to be used can be passed to the crawler constructor
+
+~~~ python
+>>> from ecosia_images import crawler
+>>> searcher = crawler(browser='firefox')
+~~~
+
+To see all valid browser options, see `ecosia_images.browser_options`.
+
+~~~ python
+>>> from ecosia_images import browser_options
+>>> browser_options
+['chrome', 'firefox']
+~~~
 
 #### Search images and get the links to the pictures
 
 After declaring a crawler and using it to search for a keyword, the resulting links will be accesible by the `links` property
 
 ~~~ python
->>> from ecosia_images import crawler
 >>> searcher = crawler()
 >>> searcher.search('number 9')
 >>> searcher.links
@@ -93,7 +118,7 @@ There is also the `download_all` function which will download all the currently 
 
 #### Stoping the client
 
-It is necessary to stop the crawler to avoid resource leak.
+It is necessary to stop the crawler to avoid the leak of resources.
 
 ~~~ python
 >>> searcher.stop()
@@ -101,4 +126,4 @@ It is necessary to stop the crawler to avoid resource leak.
 
 ## Disclaimer
 
-The dowloaded images come from the Ecosia search engine and they may have copyrights. Do not download or use any image that violates its copyright terms.
+The dowloaded images come from the Ecosia search engine and they may have copyrights. Do not download or use any image that violates its copyright terms. You can take advantage of the `license` option of the `search` function to avoid using copyrighted material.

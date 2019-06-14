@@ -6,7 +6,6 @@ from selenium.common.exceptions import TimeoutException
 import os
 import requests
 import time
-import chromedriver_binary
 
 size_options = [
     'small',
@@ -63,11 +62,19 @@ download_options = {
 
 class crawler:
 
-    def __init__(self, timeout=10):
-        chrome_options = webdriver.ChromeOptions()
-        chrome_options.add_argument('--no-sandbox')
-        chrome_options.add_argument('--headless')
-        self.driver = webdriver.Chrome(chrome_options=chrome_options)
+    def __init__(self, timeout=10, browser='chrome'):
+        if browser == 'chrome':
+            chrome_options = webdriver.ChromeOptions()
+            chrome_options.add_argument('--no-sandbox')
+            chrome_options.add_argument('--headless')
+            self.driver = webdriver.Chrome(chrome_options=chrome_options)
+        elif browser == 'firefox':
+            firefox_options = webdriver.firefox.options.Options()
+            firefox_options.add_argument('--no-sandbox')
+            firefox_options.add_argument('--headless')
+            self.driver = webdriver.Firefox(options=firefox_options)
+        else:
+            raise ValueError('Invalid browser option')
         self.timeout = timeout
         self.session = requests.Session()
 
