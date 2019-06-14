@@ -2,7 +2,7 @@ MANIFEST
 
 *.egg-info
 
-chromedriver
+geckodriver.log
 
 __pycache__*
 
