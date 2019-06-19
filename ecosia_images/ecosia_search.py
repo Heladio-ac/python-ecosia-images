@@ -147,10 +147,10 @@ class crawler:
             elements = self.driver.find_elements_by_class_name('image-result')
             self.links |= set(map(extract_href, elements))
         except Exception as e:
-            raise TimeoutError("Search did not return images")
+            raise TimeoutError("No more images found")
         finally:
             if not len(elements):
-                raise TimeoutError("No more images found")
+                raise TimeoutError("Search did not return images")
 
     def next_links(self):
         """
@@ -168,21 +168,21 @@ class crawler:
         filename = os.path.join(self.directory, self.keyword, trim_url(url))
         try:
             response = self.session.get(url, stream=True, timeout=self.timeout)
-        except requests.exceptions.ConnectionError as e:
-            raise ConnectionError('Unable to connect to Internet')
         except Exception as e:
-            raise TimeoutError('Connection took to long to download file')
+            print('Connection took to long to download file, aborting')
+            return
         if response.status_code == 200:
             with open(filename, 'wb') as f:
                 try:
                     f.write(response.content)
-                except requests.exceptions.ConnectionError: 
+                except Exception: 
                     try:
                         os.remove(filename)
                     except FileNotFoundError:
                         pass
                     finally:
-                        raise TimeoutError('Connection took long to download file')
+                        print('Connection took to long to download file, aborting')
+                        return
             return filename
 
     def __download_one(self, url: str, folder='downloads'):
@@ -290,21 +290,21 @@ def extract_href(element):
 def validate_options(**kwargs) -> bool:
     size = kwargs.pop('size')
     if size and size not in size_options:
-        raise TimeoutError('Invalid size option, try with %s'
+        raise ValueError('Invalid size option, try with %s'
                          % str(size_options))
     color = kwargs.pop('color')
     if color and color not in color_options:
-        raise TimeoutError('Invalid color option, try with %s'
+        raise ValueError('Invalid color option, try with %s'
                          % str(color_options))
     image_type = kwargs.pop('image_type')
     if image_type and image_type not in type_options:
-        raise TimeoutError('Invalid type option, try with %s'
+        raise ValueError('Invalid type option, try with %s'
                          % str(type_options))
     freshness = kwargs.pop('freshness')
     if freshness and freshness not in freshness_options:
-        raise TimeoutError('Invalid freshness option, try with %s'
+        raise ValueError('Invalid freshness option, try with %s'
                          % str(freshness_options))
     license = kwargs.pop('license')
     if license and license not in license_options:
-        raise TimeoutError('Invalid license option, try with %s'
+        raise ValueError('Invalid license option, try with %s'
                          % str(license_options))
