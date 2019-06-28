@@ -60,6 +60,11 @@ download_options = {
     'license': license_options,
 }
 
+naming_options = [
+    'trim',
+    'hash'
+]
+
 
 class crawler:
 
@@ -76,9 +81,12 @@ class crawler:
             self.driver = webdriver.Firefox(options=firefox_options)
         else:
             raise ValueError('Invalid browser option')
+
+        if naming not in naming_options:
+            raise ValueError("Incorrect naming mode option")
+        self.naming = naming
         self.timeout = timeout
         self.session = requests.Session()
-        self.naming = naming
 
     def stop(self):
         self.driver.quit()
@@ -171,19 +179,19 @@ class crawler:
         try:
             response = self.session.get(url, stream=True, timeout=self.timeout)
         except Exception as e:
-            print('Connection took to long to download file, aborting')
+            print('Connection took to long to download file')
             return
         if response.status_code == 200:
             with open(filename, 'wb') as f:
                 try:
                     f.write(response.content)
-                except Exception: 
+                except Exception:
                     try:
                         os.remove(filename)
                     except FileNotFoundError:
                         pass
                     finally:
-                        print('Connection took to long to download file, aborting')
+                        print('Connection took to long to download file')
                         return
             return filename
 
@@ -239,12 +247,12 @@ class crawler:
         file = trim_url(url)
         if self.naming == 'hash':
             extension = os.path.splitext(file)[1]
-            filename = os.path.join(self.directory, self.keyword, hashingURL(url))
+            filename = os.path.join(
+                self.directory, self.keyword, hashingURL(url))
             filename += extension
         elif self.naming == 'trim':
-            filename = os.path.join(self.directory, self.keyword, trim_url(url))
-        else:
-            raise ValueError("Incorrect naming option")
+            filename = os.path.join(
+                self.directory, self.keyword, trim_url(url))
         return filename
 
 

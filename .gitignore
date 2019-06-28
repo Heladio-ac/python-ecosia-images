@@ -4,6 +4,8 @@ MANIFEST
 
 geckodriver.log
 
+geckodriver*
+
 __pycache__*
 
 dist/
