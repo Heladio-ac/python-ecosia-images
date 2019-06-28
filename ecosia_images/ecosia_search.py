@@ -63,7 +63,7 @@ download_options = {
 
 class crawler:
 
-    def __init__(self, timeout=10, browser='chrome'):
+    def __init__(self, timeout=10, browser='chrome', naming='trim'):
         if browser == 'chrome':
             chrome_options = webdriver.ChromeOptions()
             chrome_options.add_argument('--no-sandbox')
@@ -78,6 +78,7 @@ class crawler:
             raise ValueError('Invalid browser option')
         self.timeout = timeout
         self.session = requests.Session()
+        self.naming = naming
 
     def stop(self):
         self.driver.quit()
@@ -236,9 +237,14 @@ class crawler:
 
     def generate_filename(self, url: str) -> str:
         file = trim_url(url)
-        extension = os.path.splitext(file)[1]
-        filename = os.path.join(self.directory, self.keyword, hashingURL(url))
-        filename += extension
+        if self.naming == 'hash':
+            extension = os.path.splitext(file)[1]
+            filename = os.path.join(self.directory, self.keyword, hashingURL(url))
+            filename += extension
+        elif self.naming == 'trim':
+            filename = os.path.join(self.directory, self.keyword, trim_url(url))
+        else:
+            raise ValueError("Incorrect naming option")
         return filename
 
 
