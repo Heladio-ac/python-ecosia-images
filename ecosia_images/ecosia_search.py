@@ -60,6 +60,11 @@ download_options = {
     'license': license_options,
 }
 
+browser_options = [
+    'chrome',
+    'firefox'
+]
+
 naming_options = [
     'trim',
     'hash'
@@ -80,10 +85,13 @@ class crawler:
             firefox_options.add_argument('--headless')
             self.driver = webdriver.Firefox(options=firefox_options)
         else:
-            raise ValueError('Invalid browser option')
+            raise ValueError('Invalid browser option, try with %s'
+                             % str(browser_options))
 
         if naming not in naming_options:
-            raise ValueError("Incorrect naming mode option")
+            raise ValueError('Incorrect naming mode option, try with %s'
+                             % str(naming_options))
+
         self.naming = naming
         self.timeout = timeout
         self.session = requests.Session()
@@ -252,7 +260,7 @@ class crawler:
             filename += extension
         elif self.naming == 'trim':
             filename = os.path.join(
-                self.directory, self.keyword, trim_url(url))
+                self.directory, self.keyword, file)
         return filename
 
 
