@@ -6,6 +6,7 @@ from selenium.common.exceptions import TimeoutException
 import os
 import requests
 import time
+import hashlib
 
 size_options = [
     'small',
@@ -62,7 +63,7 @@ download_options = {
 
 class crawler:
 
-    def __init__(self, timeout=10, browser='chrome'):
+    def __init__(self, timeout=10, browser='chrome', naming='trim'):
         if browser == 'chrome':
             chrome_options = webdriver.ChromeOptions()
             chrome_options.add_argument('--no-sandbox')
@@ -77,6 +78,7 @@ class crawler:
             raise ValueError('Invalid browser option')
         self.timeout = timeout
         self.session = requests.Session()
+        self.naming = naming
 
     def stop(self):
         self.driver.quit()
@@ -165,7 +167,7 @@ class crawler:
             Downloads the image from the given url
             and saves it in a designated folder
         """
-        filename = os.path.join(self.directory, self.keyword, trim_url(url))
+        filename = self.generate_filename(url)
         try:
             response = self.session.get(url, stream=True, timeout=self.timeout)
         except Exception as e:
@@ -227,11 +229,23 @@ class crawler:
         """
             Checks to see if the 'would-be' assigned path already exists
         """
-        image_path = os.path.join(self.directory, self.keyword, trim_url(url))
+        image_path = self.generate_filename(url)
         return os.path.exists(image_path)
 
     def is_not_downloaded(self, url: str) -> bool:
         return not self.is_downloaded(url)
+
+    def generate_filename(self, url: str) -> str:
+        file = trim_url(url)
+        if self.naming == 'hash':
+            extension = os.path.splitext(file)[1]
+            filename = os.path.join(self.directory, self.keyword, hashingURL(url))
+            filename += extension
+        elif self.naming == 'trim':
+            filename = os.path.join(self.directory, self.keyword, trim_url(url))
+        else:
+            raise ValueError("Incorrect naming option")
+        return filename
 
 
 def create_directories(folder: str, sub_folder: str):
@@ -281,6 +295,12 @@ def trim_url(url: str):
         Inclusively trims everything before the last / character
     """
     return url[url.rfind('/') + 1:]
+
+
+def hashingURL(url: str):
+    md5_obj = hashlib.md5(url.encode('utf-8'))
+    md5_obj.update(url.encode('utf-8'))
+    return md5_obj.hexdigest()
 
 
 def extract_href(element):
