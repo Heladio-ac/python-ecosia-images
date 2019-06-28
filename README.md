@@ -40,6 +40,15 @@ To see all valid browser options, see `ecosia_images.browser_options`.
 ['chrome', 'firefox']
 ~~~
 
+The naming convention to be used for the downloaded files can be passed to the crawler constructor. To see all valid naming options, see `ecosia_images.naming_options`.
+
+~~~ python
+>>> from ecosia_images import crawler, naming_options
+>>> searcher = crawler(naming='hash')
+>>> naming_options
+['trim', 'hash']
+~~~ 
+
 #### Search images and get the links to the pictures
 
 After declaring a crawler and using it to search for a keyword, the resulting links will be accesible by the `links` property
