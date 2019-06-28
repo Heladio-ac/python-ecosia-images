@@ -6,6 +6,7 @@ from selenium.common.exceptions import TimeoutException
 import os
 import requests
 import time
+import hashlib
 
 size_options = [
     'small',
@@ -165,7 +166,7 @@ class crawler:
             Downloads the image from the given url
             and saves it in a designated folder
         """
-        filename = os.path.join(self.directory, self.keyword, trim_url(url))
+        filename = os.path.join(self.directory, self.keyword, hashingURL(url))
         try:
             response = self.session.get(url, stream=True, timeout=self.timeout)
         except Exception as e:
@@ -227,7 +228,7 @@ class crawler:
         """
             Checks to see if the 'would-be' assigned path already exists
         """
-        image_path = os.path.join(self.directory, self.keyword, trim_url(url))
+        image_path = os.path.join(self.directory, self.keyword, hashingURL(url))
         return os.path.exists(image_path)
 
     def is_not_downloaded(self, url: str) -> bool:
@@ -281,6 +282,11 @@ def trim_url(url: str):
         Inclusively trims everything before the last / character
     """
     return url[url.rfind('/') + 1:]
+
+def hashingURL(url: str):
+    md5_obj = hashlib.md5(url.encode('utf-8'))
+    md5_obj.update(url.encode('utf-8'))
+    return md5_obj.hexdigest()
 
 
 def extract_href(element):
