@@ -255,6 +255,9 @@ class crawler:
         file = trim_url(url)
         if self.naming == 'hash':
             extension = os.path.splitext(file)[1]
+            if '?' in extension:
+                index = extension.find('?')
+                extension = extension[:index]
             filename = os.path.join(
                 self.directory, self.keyword, hashingURL(url))
             filename += extension
@@ -310,7 +313,8 @@ def trim_url(url: str):
     """
         Inclusively trims everything before the last / character
     """
-    return url[url.rfind('/') + 1:]
+    index = url.rfind('/')
+    return url[index + 1:]
 
 
 def hashingURL(url: str):
