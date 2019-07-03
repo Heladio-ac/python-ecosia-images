@@ -203,13 +203,11 @@ class crawler:
                         return
             return filename
 
-    def __download_one(self, url: str, folder='downloads'):
-        self.directory = folder
+    def __download_one(self, url: str):
         create_directories(self.directory, self.keyword)
         return self.__download(url)
 
-    def __download_many(self, urls, folder='downloads'):
-        self.directory = folder
+    def __download_many(self, urls):
         create_directories(self.directory, self.keyword)
         paths = []
         for url in urls:
@@ -224,8 +222,7 @@ class crawler:
             Checks every url so as to not download already saved images
         """
         self.directory = folder
-        return self.__download_many(filter(self.is_not_downloaded, self.links),
-                                    folder=self.directory)
+        return self.__download_many(filter(self.is_not_downloaded, self.links))
 
     def download(self, n, folder='downloads', scroll=True):
         """
