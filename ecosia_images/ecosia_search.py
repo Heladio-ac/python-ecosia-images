@@ -273,15 +273,26 @@ class crawler:
             """
 				bs: This is to change the file name for the poc
             """
-            self.keyword=self.keyword.lower()
+            name=self.keyword.lower()
             indice = 0
-            while indice < len(self.keyword):
-                letra = self.keyword[indice]
+            while indice < len(name):
+                letra = name[indice]
                 if not(letra>='a' and letra <='z' or letra>='0' and letra <='9'):
-    	             self.keyword=self.keyword.replace(letra,'-')  	
+    	             name=name.replace(letra,'-')  	
                 indice += 1
-            filename = os.path.join(
-                	pre,self.keyword, hashingURL(url),post)
+
+            name.split('-')
+            indice2 = 0
+            newName = ''
+            while indice2 < len(name):
+				if(not(name[indice2]=='')):
+					newName+=name[indice2]
+					newName+='-'
+				else:
+					pass
+				indice2+=1
+			newName=newName[:len(newName) - 1]
+            filename = os.path.join(newName,pre,hashingURL(url),post)
             filename += extension
         elif self.naming == 'trim':
             filename = os.path.join(
