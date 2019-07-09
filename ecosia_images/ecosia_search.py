@@ -293,7 +293,11 @@ class crawler:
 					pass
 				indice2+=1
 			newName=newName[:len(newName) - 1]
-            filename = os.path.join(newName,pre,hashingURL(url),post)
+            # ha?cv?:filename = os.path.join(newName,pre,hashingURL(url),post)
+            filename+=newName
+            filename+=pre
+            filename+=hashingURL(url)
+            filename+=post
             filename += extension
         elif self.naming == 'trim':
             filename = os.path.join(
