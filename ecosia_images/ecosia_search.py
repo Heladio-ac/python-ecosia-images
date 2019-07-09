@@ -271,7 +271,8 @@ class crawler:
                 	self.directory, self.keyword, hashingURL(url))
             """
             """
-				bs: This is to change the file name for the poc
+				bs: This is to change the file name for the phrase the user typed forming like and URL, example:
+				in,out: I'd like M&Ms, i-d-like-m-ms
             """
             name=self.keyword.lower()
             indice = 0
