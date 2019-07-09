@@ -340,7 +340,7 @@ def validate_options(**kwargs) -> bool:
         raise ValueError('Invalid license option, try with %s'
                          % str(license_options))
 
-
+#This function belongs to the version 0.0.NONE
 def generate_filename(keyword: str, url: str, pre: str='', post: str='',naming: str, directory: str,) -> str:
         """
 
