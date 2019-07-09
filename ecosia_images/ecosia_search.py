@@ -183,7 +183,7 @@ class crawler:
             Downloads the image from the given url
             and saves it in a designated folder
         """
-        filename = self.generate_filename(url)
+        filename = self.generate_filename(url,)
         try:
             response = self.session.get(url, stream=True, timeout=self.timeout)
         except Exception as e:
@@ -251,15 +251,37 @@ class crawler:
     def is_not_downloaded(self, url: str) -> bool:
         return not self.is_downloaded(url)
 
-    def generate_filename(self, url: str) -> str:
+    def generate_filename(self, url: str, pre: str='', post: str='') -> str:
+    	"""
+
+    		## op: Add real test cases
+
+    	"""
         file = trim_url(url)
         if self.naming == 'hash':
             extension = os.path.splitext(file)[1]
+            ## op: ask me to teach regexp. It needs like /\W.*/ [?-]
+            ## op: patch:
             if '?' in extension:
                 index = extension.find('?')
                 extension = extension[:index]
+            """
+            	ha?,cv?:
+            	filename = os.path.join(
+                	self.directory, self.keyword, hashingURL(url))
+            """
+            """
+				bs: This is to change the file name for the poc
+            """
+            self.keyword=self.keyword.lower()
+            indice = 0
+            while indice < len(self.keyword):
+                letra = self.keyword[indice]
+                if not(letra>='a' and letra <='z' or letra>='0' and letra <='9'):
+    	             self.keyword=self.keyword.replace(letra,'-')  	
+                indice += 1
             filename = os.path.join(
-                self.directory, self.keyword, hashingURL(url))
+                	pre,self.keyword, hashingURL(url),post)
             filename += extension
         elif self.naming == 'trim':
             filename = os.path.join(
