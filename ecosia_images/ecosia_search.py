@@ -71,6 +71,9 @@ naming_options = [
 ]
 
 
+
+
+
 class crawler:
 
     def __init__(self, timeout=10, browser='chrome', naming='trim'):
@@ -245,64 +248,14 @@ class crawler:
         """
             Checks to see if the 'would-be' assigned path already exists
         """
-        image_path = self.generate_filename(url)
+        image_path = self.generate_filename(url,pre,post)
         return os.path.exists(image_path)
 
     def is_not_downloaded(self, url: str) -> bool:
         return not self.is_downloaded(url)
 
     def generate_filename(self, url: str, pre: str='', post: str='') -> str:
-    	"""
-
-    		## op: Add real test cases
-
-    	"""
-        file = trim_url(url)
-        if self.naming == 'hash':
-            extension = os.path.splitext(file)[1]
-            ## op: ask me to teach regexp. It needs like /\W.*/ [?-]
-            ## op: patch:
-            if '?' in extension:
-                index = extension.find('?')
-                extension = extension[:index]
-            """
-            	ha?,cv?:
-            	filename = os.path.join(
-                	self.directory, self.keyword, hashingURL(url))
-            """
-            """
-				bs: This is to change the file name for the phrase the user typed forming like and URL, example:
-				in,out: I'd like M&Ms, i-d-like-m-ms
-            """
-            name=self.keyword.lower()
-            indice = 0
-            while indice < len(name):
-                letra = name[indice]
-                if not(letra>='a' and letra <='z' or letra>='0' and letra <='9'):
-    	             name=name.replace(letra,'-')  	
-                indice += 1
-
-            name.split('-')
-            indice2 = 0
-            newName = ''
-            while indice2 < len(name):
-				if(not(name[indice2]=='')):
-					newName+=name[indice2]
-					newName+='-'
-				else:
-					pass
-				indice2+=1
-			newName=newName[:len(newName) - 1]
-            # ha?cv?:filename = os.path.join(newName,pre,hashingURL(url),post)
-            filename+=newName
-            filename+=pre
-            filename+=hashingURL(url)
-            filename+=post
-            filename += extension
-        elif self.naming == 'trim':
-            filename = os.path.join(
-                self.directory, self.keyword, file)
-        return filename
+        return generate_filename(self.keyword,url,pre,post,self.naming,self.directory)
 
 
 def create_directories(folder: str, sub_folder: str):
@@ -386,3 +339,57 @@ def validate_options(**kwargs) -> bool:
     if license and license not in license_options:
         raise ValueError('Invalid license option, try with %s'
                          % str(license_options))
+
+
+def generate_filename(keyword: str, url: str, pre: str='', post: str='',naming: str, directory: str,) -> str:
+        """
+
+            ## op: Add real test cases
+
+        """
+        file = trim_url(url)
+        if naming == 'hash':
+            extension = os.path.splitext(file)[1]
+            ## op: ask me to teach regexp. It needs like /\W.*/ [?-]
+            ## op: patch:
+            if '?' in extension:
+                index = extension.find('?')
+                extension = extension[:index]
+            """
+                ha?,cv?:
+                filename = os.path.join(
+                    self.directory, self.keyword, hashingURL(url))
+            """
+            """
+                bs: This is to change the file name for the phrase the user typed forming like and URL, example:
+                in,out: I'd like M&Ms, i-d-like-m-ms
+            """
+            name=keyword.lower()
+            indice = 0
+            while indice < len(name):
+                letra = name[indice]
+                if not(letra>='a' and letra <='z' or letra>='0' and letra <='9'):
+                     name=name.replace(letra,'-')   
+                indice += 1
+
+            name.split('-')
+            indice2 = 0
+            newName = ''
+            while indice2 < len(name):
+                if(not(name[indice2]=='')):
+                    newName+=name[indice2]
+                    newName+='-'
+                else:
+                    pass
+                indice2+=1
+            newName=newName[:len(newName) - 1]
+            # ha?cv?:filename = os.path.join(newName,pre,hashingURL(url),post)
+            filename+=newName
+            filename+=pre
+            filename+=hashingURL(url)
+            filename+=post
+            filename += extension
+        elif naming == 'trim':
+            filename = os.path.join(
+                directory, keyword, file)
+        return filename
