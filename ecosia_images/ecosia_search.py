@@ -378,10 +378,20 @@ def validate_options(**kwargs) -> bool:
         raise ValueError('Invalid license option, try with %s'
                          % str(license_options))
 
-def url_like_from_phrase(phrase: str, pre: str='', post: str='') -> str:
+def url_like_from_phrase(url: str, pre: str='', post: str='') -> str:
     """
         
     """
+    file = trim_url(url)
+    extension = os.path.splitext(file)[1]
+    if '?' in extension:
+                index = extension.find('?')
+                extension = extension[:index]
+    
+    filename = os.path.join(
+                    directory, self.keyword, hashingURL(url))
+    extension = os.path.splitext(file)[1]
+    filename+=extiension
     '''
     if '?' in extension:
         index = extension.find('?')
@@ -395,6 +405,6 @@ def url_like_from_phrase(phrase: str, pre: str='', post: str='') -> str:
     filename=re.sub(r'/\?\w+=\w+.*/', '', filename)
     return filename
     '''
-    return None
+    return filename
 
 
