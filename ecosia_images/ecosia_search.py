@@ -249,16 +249,18 @@ class crawler:
         """
             Checks to see if the 'would-be' assigned path already exists
         """
-        image_path = self.generate_filename(url,pre,post)
+        image_path = self.generate_filename(url,pre='aa12-',post='-not198')
         return os.path.exists(image_path)
 
     def is_not_downloaded(self, url: str) -> bool:
         return not self.is_downloaded(url)
 
-    def generate_filename(self, url: str, pre='aa12-', post='-not198') -> str:
+    def generate_filename(self, url: str, pre: str='', post: str='') -> str:
         """
 
             ## op: Add real test cases
+
+            .. note:: 
 
         """
         file = trim_url(url)
@@ -375,4 +377,24 @@ def validate_options(**kwargs) -> bool:
     if license and license not in license_options:
         raise ValueError('Invalid license option, try with %s'
                          % str(license_options))
+
+def url_like_from_phrase(phrase: str, pre: str='', post: str='') -> str:
+    """
+        
+    """
+    '''
+    if '?' in extension:
+        index = extension.find('?')
+        extension = extension[:index]
+    newName+=re.sub(r'\W+', '-', phrase)
+    filename+=newName
+    filename+=pre
+    filename+=hashingURL(url)
+    filename+=post
+    filename += extension
+    filename=re.sub(r'/\?\w+=\w+.*/', '', filename)
+    return filename
+    '''
+    return None
+
 
