@@ -7,6 +7,7 @@ import os
 import requests
 import time
 import hashlib
+import re
 
 size_options = [
     'small',
@@ -255,7 +256,41 @@ class crawler:
         return not self.is_downloaded(url)
 
     def generate_filename(self, url: str, pre: str='', post: str='') -> str:
-        return generate_filename(self.keyword,url,pre,post,self.naming,self.directory)
+        """
+
+            ## op: Add real test cases
+
+        """
+        file = trim_url(url)
+        if self.naming == 'hash':
+            extension = os.path.splitext(file)[1]
+            ## op: ask me to teach regexp. It needs like /\W.*/ [?-]
+            ## op: patch:
+            if '?' in extension:
+                index = extension.find('?')
+                extension = extension[:index]
+            """
+                ha?,cv?:
+                filename = os.path.join(
+                    self.directory, self.keyword, hashingURL(url))
+            """
+            """
+                bs: This is to change the file name for the phrase the user typed forming like and URL, example:
+                in,out: I'd like M&Ms, i-d-like-m-ms
+            """
+            
+            #cv?ha?: filename = os.path.join(self.directory, self.keyword, hashingURL(url),self.keyword, hashingURL(url))
+            # bs:filename = os.path.join(newName,pre,hashingURL(url),post)
+            newName+=re.sub(r'\W+', '-', self.keyword)
+            filename+=newName
+            filename+=pre
+            filename+=hashingURL(url)
+            filename+=post
+            filename += extension
+        elif self.naming == 'trim':
+            filename = os.path.join(
+                directory, keyword, file)
+        return filename
 
 
 def create_directories(folder: str, sub_folder: str):
@@ -341,7 +376,7 @@ def validate_options(**kwargs) -> bool:
                          % str(license_options))
 
 #This function belongs to the version 0.0.NONE
-def generate_filename(keyword: str, url: str, pre: str='', post: str='',naming: str, directory: str,) -> str:
+def generate_filename(keyword: str, url: str, pre: str='', post: str='',naming: str, directory: str) -> str:
         """
 
             ## op: Add real test cases
