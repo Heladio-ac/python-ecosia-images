@@ -2,8 +2,6 @@ MANIFEST
 
 *.egg-info
 
-geckodriver.log
-
 geckodriver*
 
 __pycache__*
