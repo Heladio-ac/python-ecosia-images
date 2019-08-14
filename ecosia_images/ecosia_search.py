@@ -12,7 +12,7 @@ size_options = [
     'small',
     'medium',
     'large',
-    'wallpaper'
+    'wallpaper',
 ]
 
 color_options = [
@@ -28,20 +28,20 @@ color_options = [
     'pink',
     'brown',
     'black',
-    'gray'
+    'gray',
 ]
 
 type_options = [
     'photo',
     'clipart',
     'line',
-    'animated'
+    'animated',
 ]
 
 freshness_options = [
     'day',
     'week',
-    'month'
+    'month',
 ]
 
 license_options = [
@@ -49,7 +49,7 @@ license_options = [
     'shareCommercially',
     'modify',
     'modifyCommercially',
-    'public'
+    'public',
 ]
 
 download_options = {
@@ -62,18 +62,20 @@ download_options = {
 
 browser_options = [
     'chrome',
-    'firefox'
+    'firefox',
 ]
 
 naming_options = [
     'trim',
-    'hash'
+    'hash',
+    'custom',
 ]
 
 
 class crawler:
 
-    def __init__(self, timeout=10, browser='chrome', naming='trim'):
+    def __init__(self, timeout=10, browser='chrome', directory='downloads',
+                 makedirs=True, naming='trim', naming_function=None):
         if browser == 'chrome':
             chrome_options = webdriver.ChromeOptions()
             chrome_options.add_argument('--no-sandbox')
@@ -93,6 +95,9 @@ class crawler:
                              % str(naming_options))
 
         self.naming = naming
+        self.naming_function = naming_function
+        self.directory = directory
+        self.makedirs = makedirs
         self.timeout = timeout
         self.session = requests.Session()
 
@@ -121,7 +126,7 @@ class crawler:
             options.pop('color'),
             options.pop('image_type'),
             options.pop('freshness'),
-            options.pop('license')
+            options.pop('license'),
         )
 
         self.keyword = keyword
@@ -217,21 +222,20 @@ class crawler:
                 paths.append(path)
         return paths
 
-    def download_all(self, folder='downloads'):
+    def download_all(self):
         """
             Downloads all the gathered images links
             Checks every url so as to not download already saved images
         """
-        self.directory = folder
-        return self.__download_many(filter(self.is_not_downloaded, self.links))
+        filtered_links = filter(self.is_not_downloaded, self.links)
+        return self.__download_many(filtered_links)
 
-    def download(self, n, folder='downloads', scroll=True):
+    def download(self, n, scroll=True):
         """
             Downloads a given number of images from the gathered links
             Checks every url so as to not download already saved images
             If it has no more usable links it will gather more
         """
-        self.directory = folder
         filtered_links = list(filter(self.is_not_downloaded, self.links))
         if scroll and len(filtered_links) < n:
             while len(filtered_links) < n:
@@ -250,6 +254,8 @@ class crawler:
         return not self.is_downloaded(url)
 
     def generate_filename(self, url: str) -> str:
+        if self.naming_function:
+            return self.naming_function(url, self.directory, self.keyword)
         file = trim_url(url)
         if self.naming == 'hash':
             extension = os.path.splitext(file)[1]
