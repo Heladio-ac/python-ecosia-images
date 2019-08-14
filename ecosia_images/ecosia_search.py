@@ -161,6 +161,7 @@ class crawler:
         """
             Updates the images set with all the results on the page
         """
+        elements = []
         try:
             elements = self.driver.find_elements_by_class_name('image-result')
             self.links |= set(map(extract_href, elements))
