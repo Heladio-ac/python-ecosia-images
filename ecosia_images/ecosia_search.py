@@ -168,7 +168,7 @@ class crawler:
         """
         elements = []
         try:
-            elements = self.driver.find_elements_by_class_name('image-result')
+            elements = self.driver.find_elements_by_class_name('image-result__link')
             self.links |= set(map(extract_href, elements))
         except Exception as e:
             raise TimeoutError("No more images found")
