@@ -148,7 +148,7 @@ class crawler:
             raise TimeoutError("Lost internet connection")
         try:
             # wait for loading element to appear
-            css_selector = (By.CSS_SELECTOR, "div.loading-animation")
+            css_selector = (By.CSS_SELECTOR, "div.loading__container")
             wait = WebDriverWait(self.driver, self.timeout)
             wait.until(EC.presence_of_element_located(css_selector))
         except TimeoutException:
